@@ -123,6 +123,46 @@ def get_birth_date(name: str) -> str:
     return match.group("birth")
 
 
+
+def get_birth_year(name: str) -> str:
+    """Gets birth date of the given person
+
+    Args:
+        name - name of the person
+
+    Returns:
+        birth date of the given person
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    pattern = r"(?:Born\D*)(?P<year>\d{4})"
+    error_text = (
+        "Page infobox has no birth information (at least none in xxxx-xx-xx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("year")
+
+
+
+def get_release_date(title: str) -> str:
+    """Gets birth date of the given person
+
+    Args:
+        name - name of the person
+
+    Returns:
+        birth date of the given person
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
+    pattern = r"(?:Released\D*)(?P<release>[a-zA-Z]+-\d{2}-\d{2})"
+    error_text = (
+        "Page infobox has no birth information (at least none in xxxx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("release")
+
+
 # below are a set of actions. Each takes a list argument and returns a list of answers
 # according to the action and the argument. It is important that each function returns a
 # list of the answer(s) and not just the answer itself.
@@ -138,6 +178,30 @@ def birth_date(matches: List[str]) -> List[str]:
         birth date of named person
     """
     return [get_birth_date(" ".join(matches))]
+
+
+def release_date(matches: List[str]) -> List[str]:
+    """Returns release date of game in matches
+
+    Args:
+        matches - match from pattern of person's name to find birth date of
+
+    Returns:
+        release date of game
+    """
+    return [get_release_date(" ".join(matches))]
+
+
+def birth_year(matches: List[str]) -> List[str]:
+    """Returns birth year of named person in matches
+
+    Args:
+        matches - match from pattern of person's name to find birth year of
+
+    Returns:
+        birth year of named person
+    """
+    return [get_birth_year(" ".join(matches))]
 
 
 def polar_radius(matches: List[str]) -> List[str]:
@@ -166,6 +230,8 @@ Action = Callable[[List[str]], List[Any]]
 # here, after all of the function definitions
 pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
+    ("what year was % born".split(), birth_year),
+    ("when was % released".split(), release_date),
     ("what is the polar radius of %".split(), polar_radius),
     (["bye"], bye_action),
 ]
