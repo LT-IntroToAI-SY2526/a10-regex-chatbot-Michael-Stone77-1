@@ -8,17 +8,24 @@ from typing import List, Callable, Tuple, Any, Match
 
 def get_page_html(title: str) -> str:
     for attempt in range(5):
-        response = requests.get(
-            "https://en.wikipedia.org/w/api.php",
-            params={
-                "action": "parse",
-                "page": title,
-                "prop": "text",
-                "format": "json",
-                "redirects": True,
-            },
-            headers={"User-Agent": "intro-ai-class/1.0"}
-        )
+        try:
+            response = requests.get(
+                "https://en.wikipedia.org/w/api.php",
+                params={
+                    "action": "parse",
+                    "page": title,
+                    "prop": "text",
+                    "format": "json",
+                    "redirects": True,
+                },
+                headers={"User-Agent": "intro-ai-class/1.0"},
+                timeout=10
+            )
+        except requests.exceptions.ConnectTimeout:
+            print(f"Connection timed out, retrying '{title}'... (attempt {attempt+1}/5)")
+            time.sleep(5)
+            continue
+
         if response.status_code == 429:
             wait = int(response.headers.get("Retry-After", 5))
             print(f"Rate limited — waiting {wait}s before retrying '{title}'...")
@@ -27,8 +34,9 @@ def get_page_html(title: str) -> str:
         if response.status_code == 200 and response.text.strip():
             data = response.json()
             if "error" not in data:
-                time.sleep(2)  # polite delay after every successful call
+                time.sleep(3)
                 return data["parse"]["text"]["*"]
+
     raise ConnectionError(f"Could not retrieve Wikipedia page for '{title}' after 5 attempts")
 
 
@@ -85,6 +93,7 @@ def get_match(
     if not match:
         raise AttributeError(error_text)
     return match
+
 
 
 def get_polar_radius(planet_name: str) -> str:
@@ -145,22 +154,43 @@ def get_birth_year(name: str) -> str:
 
 
 def get_release_date(title: str) -> str:
-    """Gets birth date of the given person
+    """Gets release date of the given game
 
     Args:
-        name - name of the person
+        title - title of the game
 
     Returns:
-        birth date of the given person
+        release date of the given game
     """
     infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
-    pattern = r"(?:Released\D*)(?P<release>[a-zA-Z]+-\d{2}-\d{2})"
+    print(infobox_text)
+    pattern = r"(?:Release\D*\n*)(?P<release>[\w, ]+)"
     error_text = (
-        "Page infobox has no birth information (at least none in xxxx format)"
+        "Page infobox has no release information (at least none in xxxx format)"
     )
     match = get_match(infobox_text, pattern, error_text)
 
     return match.group("release")
+
+
+def get_developer(title: str) -> str:
+    """Gets the developers of the given game
+
+    Args:
+        title - title of the game
+
+    Returns:
+        publisher of the given game
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
+    print(infobox_text)
+    pattern = r"(?:Developer\D*\n*)(?P<developer>[\w, ]+)"
+    error_text = (
+        "Page infobox has no developer information (at least none in xxxx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("developer")
 
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
@@ -184,12 +214,24 @@ def release_date(matches: List[str]) -> List[str]:
     """Returns release date of game in matches
 
     Args:
-        matches - match from pattern of person's name to find birth date of
+        matches - match from pattern of Game's name to find release date of
 
     Returns:
         release date of game
     """
     return [get_release_date(" ".join(matches))]
+
+
+def developer(matches: List[str]) -> List[str]:
+    """Returns release date of game in matches
+
+    Args:
+        matches - match from pattern of Game's name to find release date of
+
+    Returns:
+        release date of game
+    """
+    return [get_developer(" ".join(matches))]
 
 
 def birth_year(matches: List[str]) -> List[str]:
@@ -232,6 +274,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what year was % born".split(), birth_year),
     ("when was % released".split(), release_date),
+    ("who was % developed by".split(), developer),
     ("what is the polar radius of %".split(), polar_radius),
     (["bye"], bye_action),
 ]
