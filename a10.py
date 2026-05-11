@@ -184,7 +184,7 @@ def get_developer(title: str) -> str:
     """
     infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
     print(infobox_text)
-    pattern = r"(?:Developer\D*\n*)(?P<developer>[\w, ]+)"
+    pattern = r"(?:Developer)(?P<developer>.*?)(?:Publisher)"
     error_text = (
         "Page infobox has no developer information (at least none in xxxx format)"
     )
