@@ -193,6 +193,46 @@ def get_developer(title: str) -> str:
     return match.group("developer")
 
 
+def get_designer(title: str) -> str:
+    """Gets the developers of the given game
+
+    Args:
+        title - title of the game
+
+    Returns:
+        publisher of the given game
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
+    print(infobox_text)
+    pattern = r"(?:Designers|Designer)(?P<designer>.*?)(?:Artist|Programmers)"
+    error_text = (
+        "Page infobox has no developer information (at least none in xxxx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("designer")
+
+
+def get_artist(title: str) -> str:
+    """Gets the artists of the given game
+
+    Args:
+        title - title of the game
+
+    Returns:
+        artists of the given game
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
+    print(infobox_text)
+    pattern = r"(?:Artists|Artist)(?P<artist>.*?)(?:Composer|Writer)"
+    error_text = (
+        "Page infobox has no developer information (at least none in xxxx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("artist")
+
+
 # below are a set of actions. Each takes a list argument and returns a list of answers
 # according to the action and the argument. It is important that each function returns a
 # list of the answer(s) and not just the answer itself.
@@ -258,6 +298,30 @@ def polar_radius(matches: List[str]) -> List[str]:
     return [get_polar_radius(matches[0])]
 
 
+def designer(matches: List[str]) -> List[str]:
+    """Returns designer of game in matches
+
+    Args:
+        matches - match from pattern of Game's name to find designer of
+
+    Returns:
+        designer of game
+    """
+    return [get_designer(" ".join(matches))]
+
+
+def artist(matches: List[str]) -> List[str]:
+    """Returns artist of game in matches
+
+    Args:
+        matches - match from pattern of Game's name to find artist of
+
+    Returns:
+        artist of game
+    """
+    return [get_artist(" ".join(matches))]
+
+
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
     raise KeyboardInterrupt
@@ -276,6 +340,8 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % released".split(), release_date),
     ("who was % developed by".split(), developer),
     ("what is the polar radius of %".split(), polar_radius),
+    ("who was % designed by".split(), designer),
+    ("who was % artists".split(), artist),
     (["bye"], bye_action),
 ]
 
