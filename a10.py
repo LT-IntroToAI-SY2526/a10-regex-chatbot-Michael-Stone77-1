@@ -193,6 +193,26 @@ def get_developer(title: str) -> str:
     return match.group("developer")
 
 
+def get_programmers(title: str) -> str:
+    """Gets the developers of the given game
+
+    Args:
+        title - title of the game
+
+    Returns:
+        publisher of the given game
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
+    print(infobox_text)
+    pattern = r"(?:Programmers|Programmer)(?P<programmer>.*?)(?:Artist|Composer)"
+    error_text = (
+        "Page infobox has no developer information (at least none in xxxx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("programmer")
+
+
 def get_designer(title: str) -> str:
     """Gets the developers of the given game
 
@@ -231,6 +251,46 @@ def get_artist(title: str) -> str:
     match = get_match(infobox_text, pattern, error_text)
 
     return match.group("artist")
+
+
+def get_composer(title: str) -> str:
+    """Gets the artists of the given game
+
+    Args:
+        title - title of the game
+
+    Returns:
+        artists of the given game
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
+    print(infobox_text)
+    pattern = r"(?:Composers|Composer)(?P<composer>.*?)(?:Series|Platforms)"
+    error_text = (
+        "Page infobox has no developer information (at least none in xxxx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("composer")
+
+
+def get_platforms(title: str) -> str:
+    """Gets the artists of the given game
+
+    Args:
+        title - title of the game
+
+    Returns:
+        artists of the given game
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
+    print(infobox_text)
+    pattern = r"(?:Platforms|Platform)(?P<platform>.*?)(?:Release)"
+    error_text = (
+        "Page infobox has no developer information (at least none in xxxx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("platform")
 
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
@@ -322,6 +382,42 @@ def artist(matches: List[str]) -> List[str]:
     return [get_artist(" ".join(matches))]
 
 
+def composer(matches: List[str]) -> List[str]:
+    """Returns artist of game in matches
+
+    Args:
+        matches - match from pattern of Game's name to find artist of
+
+    Returns:
+        artist of game
+    """
+    return [get_composer(" ".join(matches))]
+
+
+def platform(matches: List[str]) -> List[str]:
+    """Returns artist of game in matches
+
+    Args:
+        matches - match from pattern of Game's name to find artist of
+
+    Returns:
+        artist of game
+    """
+    return [get_platforms(" ".join(matches))]
+
+
+def programmer(matches: List[str]) -> List[str]:
+    """Returns artist of game in matches
+
+    Args:
+        matches - match from pattern of Game's name to find artist of
+
+    Returns:
+        artist of game
+    """
+    return [get_programmers(" ".join(matches))]
+
+
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
     raise KeyboardInterrupt
@@ -342,6 +438,9 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("what is the polar radius of %".split(), polar_radius),
     ("who was % designed by".split(), designer),
     ("who was % artists".split(), artist),
+    ("who was % composed by".split(), composer),
+    ("what platforms is % on".split(), platform),
+    ("who was % programmed by".split(), programmer),
     (["bye"], bye_action),
 ]
 
