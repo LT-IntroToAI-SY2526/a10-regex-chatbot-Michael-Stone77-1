@@ -180,7 +180,7 @@ def get_developer(title: str) -> str:
         title - title of the game
 
     Returns:
-        publisher of the given game
+        developer of the given game
     """
     infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
     print(infobox_text)
@@ -194,19 +194,19 @@ def get_developer(title: str) -> str:
 
 
 def get_programmers(title: str) -> str:
-    """Gets the developers of the given game
+    """Gets the programmer of the given game
 
     Args:
         title - title of the game
 
     Returns:
-        publisher of the given game
+        programmer of the given game
     """
     infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
     print(infobox_text)
     pattern = r"(?:Programmers|Programmer)(?P<programmer>.*?)(?:Artist|Composer)"
     error_text = (
-        "Page infobox has no developer information (at least none in xxxx format)"
+        "Page infobox has no programmer information (at least none in xxxx format)"
     )
     match = get_match(infobox_text, pattern, error_text)
 
@@ -214,19 +214,19 @@ def get_programmers(title: str) -> str:
 
 
 def get_designer(title: str) -> str:
-    """Gets the developers of the given game
+    """Gets the designer of the given game
 
     Args:
         title - title of the game
 
     Returns:
-        publisher of the given game
+        designer of the given game
     """
     infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
     print(infobox_text)
     pattern = r"(?:Designers|Designer)(?P<designer>.*?)(?:Artist|Programmers)"
     error_text = (
-        "Page infobox has no developer information (at least none in xxxx format)"
+        "Page infobox has no designer information (at least none in xxxx format)"
     )
     match = get_match(infobox_text, pattern, error_text)
 
@@ -246,7 +246,7 @@ def get_artist(title: str) -> str:
     print(infobox_text)
     pattern = r"(?:Artists|Artist)(?P<artist>.*?)(?:Composer|Writer)"
     error_text = (
-        "Page infobox has no developer information (at least none in xxxx format)"
+        "Page infobox has no artist information (at least none in xxxx format)"
     )
     match = get_match(infobox_text, pattern, error_text)
 
@@ -254,19 +254,19 @@ def get_artist(title: str) -> str:
 
 
 def get_composer(title: str) -> str:
-    """Gets the artists of the given game
+    """Gets the composer of the given game
 
     Args:
         title - title of the game
 
     Returns:
-        artists of the given game
+        composer of the given game
     """
     infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
     print(infobox_text)
     pattern = r"(?:Composers|Composer)(?P<composer>.*?)(?:Series|Platforms)"
     error_text = (
-        "Page infobox has no developer information (at least none in xxxx format)"
+        "Page infobox has no composer information (at least none in xxxx format)"
     )
     match = get_match(infobox_text, pattern, error_text)
 
@@ -274,19 +274,19 @@ def get_composer(title: str) -> str:
 
 
 def get_platforms(title: str) -> str:
-    """Gets the artists of the given game
+    """Gets the platform of the given game
 
     Args:
         title - title of the game
 
     Returns:
-        artists of the given game
+        platform of the given game
     """
     infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
     print(infobox_text)
     pattern = r"(?:Platforms|Platform)(?P<platform>.*?)(?:Release)"
     error_text = (
-        "Page infobox has no developer information (at least none in xxxx format)"
+        "Page infobox has no platform information (at least none in xxxx format)"
     )
     match = get_match(infobox_text, pattern, error_text)
 
@@ -312,6 +312,26 @@ def get_series(title: str) -> str:
     match = get_match(infobox_text, pattern, error_text)
 
     return match.group("series")
+
+
+def get_writer(title: str) -> str:
+    """Gets the writer of the given game
+
+    Args:
+        title - title of the game
+
+    Returns:
+        writer of the given game
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
+    print(infobox_text)
+    pattern = r"(?:Writers|writer)(?P<writer>.*?)(?:Composer|Series)"
+    error_text = (
+        "Page infobox has no writer information (at least none in xxxx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("writer")
 
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
@@ -440,15 +460,27 @@ def programmer(matches: List[str]) -> List[str]:
 
 
 def series(matches: List[str]) -> List[str]:
-    """Returns cover art of game in matches
+    """Returns series of game in matches
 
     Args:
-        matches - match from pattern of Game's name to find cover art of
+        matches - match from pattern of Game's name to find series of
 
     Returns:
-        cover art of game
+        series of game
     """
     return [get_series(" ".join(matches))]
+
+
+def writer(matches: List[str]) -> List[str]:
+    """Returns writer of game in matches
+
+    Args:
+        matches - match from pattern of Game's name to find writer of
+
+    Returns:
+        writer of game
+    """
+    return [get_writer(" ".join(matches))]
 
 
 # dummy argument is ignored and doesn't matter
@@ -472,6 +504,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("who was % designed by".split(), designer),
     ("who was % artists".split(), artist),
     ("who was % composed by".split(), composer),
+    ("who was % written by".split(), writer),
     ("what platforms is % on".split(), platform),
     ("who was % programmed by".split(), programmer),
     ("what series is % apart of".split(), series),
