@@ -293,6 +293,27 @@ def get_platforms(title: str) -> str:
     return match.group("platform")
 
 
+
+def get_series(title: str) -> str:
+    """Gets the cover art of the given game
+
+    Args:
+        title - title of the game
+
+    Returns:
+        cover art of the given game
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
+    print(infobox_text)
+    pattern = r"(?:Series|Serie)(?P<series>.*?)(?:Platform|Engine)"
+    error_text = (
+        "Page infobox has no cover art information (at least none in xxxx format)"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("series")
+
+
 # below are a set of actions. Each takes a list argument and returns a list of answers
 # according to the action and the argument. It is important that each function returns a
 # list of the answer(s) and not just the answer itself.
@@ -323,13 +344,13 @@ def release_date(matches: List[str]) -> List[str]:
 
 
 def developer(matches: List[str]) -> List[str]:
-    """Returns release date of game in matches
+    """Returns developer of game in matches
 
     Args:
         matches - match from pattern of Game's name to find release date of
 
     Returns:
-        release date of game
+        developers of game
     """
     return [get_developer(" ".join(matches))]
 
@@ -383,39 +404,51 @@ def artist(matches: List[str]) -> List[str]:
 
 
 def composer(matches: List[str]) -> List[str]:
-    """Returns artist of game in matches
+    """Returns composer of game in matches
 
     Args:
-        matches - match from pattern of Game's name to find artist of
+        matches - match from pattern of Game's name to find composer of
 
     Returns:
-        artist of game
+        composer of game
     """
     return [get_composer(" ".join(matches))]
 
 
 def platform(matches: List[str]) -> List[str]:
-    """Returns artist of game in matches
+    """Returns platforms of game in matches
 
     Args:
-        matches - match from pattern of Game's name to find artist of
+        matches - match from pattern of Game's name to find platforms of
 
     Returns:
-        artist of game
+        platforms of game
     """
     return [get_platforms(" ".join(matches))]
 
 
 def programmer(matches: List[str]) -> List[str]:
-    """Returns artist of game in matches
+    """Returns programmer of game in matches
 
     Args:
-        matches - match from pattern of Game's name to find artist of
+        matches - match from pattern of Game's name to find programmer of
 
     Returns:
-        artist of game
+        programmer of game
     """
     return [get_programmers(" ".join(matches))]
+
+
+def series(matches: List[str]) -> List[str]:
+    """Returns cover art of game in matches
+
+    Args:
+        matches - match from pattern of Game's name to find cover art of
+
+    Returns:
+        cover art of game
+    """
+    return [get_series(" ".join(matches))]
 
 
 # dummy argument is ignored and doesn't matter
@@ -441,6 +474,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("who was % composed by".split(), composer),
     ("what platforms is % on".split(), platform),
     ("who was % programmed by".split(), programmer),
+    ("what series is % apart of".split(), series),
     (["bye"], bye_action),
 ]
 
