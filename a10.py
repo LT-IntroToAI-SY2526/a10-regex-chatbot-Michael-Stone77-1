@@ -295,19 +295,19 @@ def get_platforms(title: str) -> str:
 
 
 def get_series(title: str) -> str:
-    """Gets the cover art of the given game
+    """Gets the series of the given game
 
     Args:
         title - title of the game
 
     Returns:
-        cover art of the given game
+        series of the given game
     """
     infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
     print(infobox_text)
     pattern = r"(?:Series|Serie)(?P<series>.*?)(?:Platform|Engine)"
     error_text = (
-        "Page infobox has no cover art information (at least none in xxxx format)"
+        "Page infobox has no series information (at least none in xxxx format)"
     )
     match = get_match(infobox_text, pattern, error_text)
 
