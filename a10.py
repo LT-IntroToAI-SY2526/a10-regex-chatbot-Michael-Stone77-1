@@ -224,7 +224,7 @@ def get_designer(title: str) -> str:
     """
     infobox_text = clean_text(get_first_infobox_text(get_page_html(title)))
     print(infobox_text)
-    pattern = r"(?:Designers|Designer)(?P<designer>.*?)(?:Artist|Programmers)"
+    pattern = r"(?:Designers|Designer)(?P<designer>.*?)(?:Artist|Programmer)"
     error_text = (
         "Page infobox has no designer information (at least none in xxxx format)"
     )
